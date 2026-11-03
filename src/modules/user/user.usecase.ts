@@ -48,3 +48,21 @@ export class RegisterUserUseCase {
         return user;
     }
 }
+export class GetUserByIdUseCase {
+
+    constructor(
+        private readonly userRepository: IUserRepository
+    ) {}
+
+    async execute(
+        id: string
+    ): Promise<User> {
+        const user = await this.userRepository.findById(id);
+
+        if (!user) {
+            throw new AppError('User tidak ditemukan', 404);
+        }
+
+        return user;
+    }
+}

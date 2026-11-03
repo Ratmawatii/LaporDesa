@@ -13,5 +13,9 @@ export interface IUserRepository {
     create(
         data: CreateUserData
     ): Promise<User>;
+    
+ findById(
+        id: string
+    ): Promise<UserRecord | null>;
 
 }

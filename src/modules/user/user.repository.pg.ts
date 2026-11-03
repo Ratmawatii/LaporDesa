@@ -89,4 +89,25 @@ implements IUserRepository {
             throw error;
         }
     }
+
+    async findById(
+        id: string
+    ): Promise<UserRecord | null> {
+
+        const result = await this.db.query(
+            `
+            SELECT
+                id,
+                name,
+                email,
+                password_hash AS "passwordHash",
+                created_at AS "createdAt"
+            FROM users
+            WHERE id = $1
+            `,
+            [id]
+        );
+
+        return result.rows[0] ?? null;
+    }
 }
