@@ -20,3 +20,8 @@ export interface RegisterUserInput {
     email: string;
     password: string;
 }
+
+export interface UpdateUserData {
+    name?: string;
+    email?: string;
+}

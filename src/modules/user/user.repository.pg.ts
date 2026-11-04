@@ -4,6 +4,8 @@ import type { Pool } from 'pg';
 
 import type { IUserRepository } from './user.repository.js';
 
+import type { UpdateUserData } from './user.model.js';
+
 import type {
     User,
     UserRecord,
@@ -11,6 +13,8 @@ import type {
 } from './user.model.js';
 
 import { AppError } from '../../shared/errors/app-error.js';
+
+
 
 export class PostgresUserRepository
 implements IUserRepository {
@@ -109,5 +113,78 @@ implements IUserRepository {
         );
 
         return result.rows[0] ?? null;
+    }
+
+    async update(
+    id: string,
+    data: UpdateUserData
+): Promise<User | null> {
+
+    const fields: string[] = [];
+    const values: unknown[] = [];
+
+    if (data.name !== undefined) {
+        values.push(data.name);
+        fields.push(`name = $${values.length}`);
+    }
+
+    if (data.email !== undefined) {
+        values.push(data.email);
+        fields.push(`email = $${values.length}`);
+    }
+
+    if (fields.length === 0) {
+        return null;
+    }
+
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+
+    values.push(id);
+
+    try {
+        const result = await this.db.query(
+            `
+            UPDATE users
+            SET ${fields.join(', ')}
+            WHERE id = $${values.length}
+            RETURNING
+                id,
+                name,
+                email,
+                password_hash AS "passwordHash",
+                created_at AS "createdAt"
+            `,
+            values
+        );
+
+        return result.rows[0] ?? null;
+
+    } catch (error: unknown) {
+
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            error.code === '23505'
+        ) {
+            throw new AppError(
+                'Email sudah terdaftar',
+                409
+            );
+        }
+
+        throw error;
+    }
+}
+    async delete(
+        id: string
+    ): Promise<void> {
+        await this.db.query(
+            `
+            DELETE FROM users
+            WHERE id = $1
+            `,
+            [id]
+        );
     }
 }

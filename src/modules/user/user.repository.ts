@@ -1,7 +1,9 @@
+
 import type {
     User,
     UserRecord,
-    CreateUserData
+    CreateUserData,
+    UpdateUserData
 } from './user.model.js';
 
 export interface IUserRepository {
@@ -13,9 +15,17 @@ export interface IUserRepository {
     create(
         data: CreateUserData
     ): Promise<User>;
-    
- findById(
+
+    findById(
         id: string
     ): Promise<UserRecord | null>;
 
+    update(
+        id: string,
+        data: UpdateUserData
+    ): Promise<User | null>;
+
+    delete(
+        id: string
+    ): Promise<void>;
 }

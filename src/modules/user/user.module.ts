@@ -2,11 +2,12 @@ import { postgres } from '../../infrastructure/database/postgres.js';
 
 import { PostgresUserRepository } from './user.repository.pg.js';
 
-import { RegisterUserUseCase, GetUserByIdUseCase } from './user.usecase.js';
+import { RegisterUserUseCase, GetUserByIdUseCase, UpdateUserUseCase, DeleteUserUseCase } from './user.usecase.js';
 
 import { UserHandler } from './user.handler.js';
 
 import { createUserRoutes } from './user.route.js';
+
 
 // Repository
 const userRepository = new PostgresUserRepository(postgres);
@@ -18,11 +19,18 @@ const registerUserUseCase = new RegisterUserUseCase(
 const getUserByIdUseCase = new GetUserByIdUseCase(
     userRepository
 );
-
+const updateUserUseCase = new UpdateUserUseCase(
+    userRepository
+);
+const deleteUserUseCase = new DeleteUserUseCase(
+    userRepository
+);
 // Handler
 const userHandler = new UserHandler(
     registerUserUseCase,
-    getUserByIdUseCase
+    getUserByIdUseCase,
+    updateUserUseCase,
+    deleteUserUseCase
 );
 
 // Routes

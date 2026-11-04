@@ -1,62 +1,35 @@
-import type {
-    Request,
-    Response,
-    NextFunction
-} from 'express';
+import type { Request, Response, NextFunction } from "express";
 
-import type { ZodSchema } from 'zod';
+import type { ZodSchema } from "zod";
 
-import { AppError } from '../errors/app-error.js';
+import { AppError } from "../errors/app-error.js";
 
 export const validateBody = (schema: ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
 
-    return (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => {
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
 
-        const result = schema.safeParse(req.body);
+      return next(new AppError(messages.join(", "), 400));
+    }
 
-        if (!result.success) {
+    req.body = result.data;
 
-            const messages = result.error.issues.map(
-                (issue) => issue.message
-            );
-
-            return next(
-                new AppError(messages.join(', '), 400)
-            );
-        }
-
-        req.body = result.data;
-
-        next();
-    };
+    next();
+  };
 };
 
 export const validateParams = (schema: ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.params);
 
-    return (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => {
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
 
-        const result = schema.safeParse(req.params);
+      return next(new AppError(messages.join(", "), 400));
+    }
 
-        if (!result.success) {
-
-            const messages = result.error.issues.map(
-                (issue) => issue.message
-            );
-
-            return next(
-                new AppError(messages.join(', '), 400)
-            );
-        }
-        req.body = result.data;
-
-        next();
-    };
+    next();
+  };
 };

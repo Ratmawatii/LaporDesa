@@ -8,6 +8,8 @@ import { validateBody, validateParams } from '../../shared/middlewares/validate.
 
 import { asyncHandler } from '../../shared/utils/async-handler.js';
 
+import { updateUserSchema } from './user.validation.js';
+
 export const createUserRoutes = (
     userHandler: UserHandler
 ) => {
@@ -23,6 +25,19 @@ export const createUserRoutes = (
         '/:id',
         validateParams(userIdSchema),
         asyncHandler(userHandler.getUserById)
+    );
+    //update user
+    router.patch(
+        '/:id',
+        validateParams(userIdSchema),
+        validateBody(updateUserSchema),
+        asyncHandler(userHandler.updateUser)
+    );
+    //delete user
+    router.delete(
+        '/:id',
+        validateParams(userIdSchema),
+        asyncHandler(userHandler.deleteUser)
     );
 
     return router;
