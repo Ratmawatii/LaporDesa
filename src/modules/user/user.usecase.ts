@@ -8,6 +8,14 @@ import type {
     UpdateUserData
 } from './user.model.js';
 
+import type {
+    PaginationParams,
+    PaginatedResult
+} from '../../shared/pagination/pagination.model.js';
+
+import { createPaginationResult } from '../../shared/pagination/pagination.util.js';
+
+
 import { AppError } from '../../shared/errors/app-error.js';
 
 export class RegisterUserUseCase {
@@ -120,5 +128,20 @@ export class DeleteUserUseCase {
         if (deleted !== undefined) {
             throw new AppError('User tidak ditemukan', 404);
         }
+    }
+}
+export class GetAllUserUseCase {
+
+    constructor(
+        private readonly userRepository: IUserRepository
+    ) {}
+    async execute(
+        params: PaginationParams
+    ): Promise<PaginatedResult<User>> {
+        const results = await this.userRepository.findAll(params);
+
+        return createPaginationResult(
+            results,
+            params);
     }
 }

@@ -12,6 +12,12 @@ import type {
     CreateUserData
 } from './user.model.js';
 
+import type {
+    PaginationData,
+    PaginationParams,
+} from '../../shared/pagination/pagination.model.js';
+
+
 import { AppError } from '../../shared/errors/app-error.js';
 
 
@@ -113,6 +119,39 @@ implements IUserRepository {
         );
 
         return result.rows[0] ?? null;
+    }
+
+    async findAll(
+        params: PaginationParams
+    ): Promise<PaginationData<User>> {
+        //get total data
+        const countResult = await this.db.query(
+            `
+            SELECT COUNT(*) AS total
+            FROM users
+            `
+        );
+        const totalItems = Number(countResult.rows[0].total);
+        //get pagitated data
+        const result = await this.db.query(
+            `
+            SELECT
+                id,
+                name,
+                email,
+                password_hash AS "passwordHash",
+                created_at AS "createdAt"
+            FROM users
+            ORDER BY created_at DESC
+            LIMIT $1 OFFSET $2
+            `,
+            [params.limit, params.offset]
+        );
+
+        return {
+            items: result.rows,
+            totalItems
+        };
     }
 
     async update(

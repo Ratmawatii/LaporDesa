@@ -33,3 +33,17 @@ export const validateParams = (schema: ZodSchema) => {
     next();
   };
 };
+
+export const validateQuery = (schema: ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.query);
+
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
+
+      return next(new AppError(messages.join(", "), 400));
+    }
+    res.locals.validateQuery = result.data;
+    next();
+  };
+};

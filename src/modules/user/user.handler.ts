@@ -5,7 +5,7 @@ import type {
 
 import type { RegisterUserInput } from './user.model.js';
 
-import { GetUserByIdUseCase, RegisterUserUseCase } from './user.usecase.js';
+import { GetUserByIdUseCase, GetAllUserUseCase, RegisterUserUseCase } from './user.usecase.js';
 
 import type { UpdateUserData } from './user.model.js';
 
@@ -13,6 +13,9 @@ import { UpdateUserUseCase } from './user.usecase.js';
 
 import { DeleteUserUseCase } from './user.usecase.js';
 
+import { getPaginationParams } from '../../shared/pagination/pagination.util.js';
+
+import type { PaginationQuery } from '../../shared/pagination/pagination.validation.js';
 
 export class UserHandler {
 
@@ -20,7 +23,8 @@ export class UserHandler {
         private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly getUserByIdUseCase: GetUserByIdUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
-        private readonly deleteUserUseCase: DeleteUserUseCase
+        private readonly deleteUserUseCase: DeleteUserUseCase,
+        private readonly getAllUsersUseCase: GetAllUserUseCase
     ) {}
 
     register = async (
@@ -59,6 +63,29 @@ export class UserHandler {
             data: user
         });
     };
+
+    getAll = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+        const query = res.locals.validateQuery as PaginationQuery;
+        
+        const params = getPaginationParams(
+            query.page,
+            query.limit
+        );
+
+        const result = await this.getAllUsersUseCase.execute(
+            params
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Data Users berhasil ditemukan',
+            data: result.data,
+            pagination: result.pagination
+        });
+    }
 
     updateUser = async (
         req: Request,

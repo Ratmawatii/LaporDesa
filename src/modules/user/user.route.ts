@@ -10,17 +10,22 @@ import { asyncHandler } from '../../shared/utils/async-handler.js';
 
 import { updateUserSchema } from './user.validation.js';
 
+import { PaginationSchema } from '../../shared/pagination/pagination.validation.js';
+
+import { validateQuery } from '../../shared/middlewares/validate.js';
+
 export const createUserRoutes = (
     userHandler: UserHandler
 ) => {
 
     const router = Router();
-
+    //register user atau data user baru
     router.post(
         '/register',
         validateBody(registerUserSchema),
         asyncHandler(userHandler.register)
     );
+    //get single
     router.get(
         '/:id',
         validateParams(userIdSchema),
@@ -39,6 +44,11 @@ export const createUserRoutes = (
         validateParams(userIdSchema),
         asyncHandler(userHandler.deleteUser)
     );
-
+    //get semua
+    router.get(
+        '/',
+        validateQuery(PaginationSchema),
+        asyncHandler(userHandler.getAll)
+    );
     return router;
 };

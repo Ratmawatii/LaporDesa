@@ -21,7 +21,7 @@ export interface RegisterUserInput {
     password: string;
 }
 
-export interface UpdateUserData {
+export interface  UpdateUserData {
     name?: string;
     email?: string;
 }
